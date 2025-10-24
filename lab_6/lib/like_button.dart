@@ -20,7 +20,13 @@ class _LikeButtonState extends State<LikeButton> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(5),
-      child: _isLiked ? (Icons.favorite): Icon(Icons.favorite_border);
+      child: IconButton(
+        icon: Icon(
+          _isLiked ? Icons.favorite : Icons.favorite_border,
+          color: _isLiked ? Colors.red : null,
+        ),
+        onPressed: toggle,
+      ),
     );
   }
 }
