@@ -5,7 +5,7 @@ import '../db/database_helper.dart';
 class NoteDetailScreen extends StatefulWidget {
   // Accept an optional Note. If null -> creating a new note.
   final Note? note;
-  const NoteDetailScreen({Key? key, this.note}) : super(key: key);
+  const NoteDetailScreen({super.key, this.note});
 
   @override
   State<NoteDetailScreen> createState() => _NoteDetailScreenState();

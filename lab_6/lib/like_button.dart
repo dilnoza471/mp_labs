@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-class LikeButton extends StatefulWidget{
+class LikeButton extends StatefulWidget {
+  const LikeButton({super.key});
+
   @override
   State<LikeButton> createState() => _LikeButtonState();
 }
@@ -8,10 +10,10 @@ class LikeButton extends StatefulWidget{
 class _LikeButtonState extends State<LikeButton> {
   bool _isLiked = false;
 
-  void toggle(){
-    if(_isLiked){
+  void toggle() {
+    if (_isLiked) {
       _isLiked = false;
-    }else{
+    } else {
       _isLiked = true;
     }
   }

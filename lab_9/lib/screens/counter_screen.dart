@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class CounterScreen extends StatefulWidget {
   static const routeName = '/counter';
-  const CounterScreen({Key? key}) : super(key: key);
+  const CounterScreen({super.key});
 
   @override
   State<CounterScreen> createState() => _CounterScreenState();
