@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'sign_up.dart';
 import 'homepage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'button.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -59,7 +60,7 @@ class _LoginState extends State<Login> {
         // Navigate to homepage and show email
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => HomePage(email: email)),
+          MaterialPageRoute(builder: (_) => HomePage()),
         );
       });
     } catch (e) {
@@ -120,28 +121,27 @@ class _LoginState extends State<Login> {
                   Row(
                     children: [
                       Expanded(
-                        child: ElevatedButton(
-                          onPressed: _submit,
-                          child: const Text('Login'),
-                        ),
+                        child: AppButton(text: 'Login', onTap: _submit),
                       ),
                     ],
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: () {
+            const SizedBox(height: 20),
+            AppButton(
+              text: "Don't have an account? Sign up",
+              onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const SignUp()),
                 );
               },
-              child: const Text("Don't have an account? Sign up"),
             ),
-            TextButton(
-              onPressed: () async {
+            const SizedBox(height: 20),
+            AppButton(
+              text: "Reset password",
+              onTap: () async {
                 final email = _emailCtrl.text.trim();
 
                 if (email.isEmpty) {
@@ -159,7 +159,6 @@ class _LoginState extends State<Login> {
                   const SnackBar(content: Text('Password reset email sent')),
                 );
               },
-              child: const Text("Reset Password"),
             ),
           ],
         ),

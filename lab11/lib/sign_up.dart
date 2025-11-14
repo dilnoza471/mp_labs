@@ -14,6 +14,8 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController _emailCtrl = TextEditingController();
   final TextEditingController _passCtrl = TextEditingController();
   final TextEditingController _confirmCtrl = TextEditingController();
+  final TextEditingController _nameCtrl = TextEditingController();
+  final TextEditingController _photoUrlCtrl = TextEditingController();
   bool _isLoading = false;
 
   @override
@@ -21,6 +23,8 @@ class _SignUpState extends State<SignUp> {
     _emailCtrl.dispose();
     _passCtrl.dispose();
     _confirmCtrl.dispose();
+    _nameCtrl.dispose();
+    _photoUrlCtrl.dispose();
     super.dispose();
   }
 
@@ -34,6 +38,17 @@ class _SignUpState extends State<SignUp> {
       throw Exception(e.message ?? 'Sign up failed');
     } catch (e) {
       throw Exception('An unknown error occurred');
+    }
+  }
+
+  Future<void> _updateUserProfile(String displayName, String photoURL) async {
+    try {
+      await FirebaseAuth.instance.currentUser?.updateDisplayName(displayName);
+      if (photoURL.isNotEmpty) {
+        await FirebaseAuth.instance.currentUser?.updatePhotoURL(photoURL);
+      }
+    } catch (e) {
+      throw Exception('Failed to update profile: ${e.toString()}');
     }
   }
 
@@ -56,15 +71,31 @@ class _SignUpState extends State<SignUp> {
     return null;
   }
 
+  String? _validateName(String? v) {
+    if (v == null || v.trim().isEmpty) return 'Enter display name';
+    if (v.trim().length < 2) return 'Name must be at least 2 characters';
+    return null;
+  }
+
+  String? _validatePhotoUrl(String? v) {
+    if (v == null || v.isEmpty) return null; // Optional field
+    if (!v.startsWith('http')) return 'Photo URL must start with http';
+    return null;
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
 
     final email = _emailCtrl.text.trim();
     final password = _passCtrl.text.trim();
+    final displayName = _nameCtrl.text.trim();
+    final photoURL = _photoUrlCtrl.text.trim();
 
     try {
       await signUp(email, password);
+      await _updateUserProfile(displayName, photoURL);
+
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Account created successfully.')),
@@ -72,7 +103,7 @@ class _SignUpState extends State<SignUp> {
       // Navigate to login
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) =>Login()),
+        MaterialPageRoute(builder: (_) => const Login()),
       );
     } catch (e) {
       if (!mounted) return;
@@ -98,6 +129,15 @@ class _SignUpState extends State<SignUp> {
             key: _formKey,
             child: Column(
               children: [
+                TextFormField(
+                  controller: _nameCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Display Name',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: _validateName,
+                ),
+                const SizedBox(height: 12),
                 TextFormField(
                   controller: _emailCtrl,
                   decoration: const InputDecoration(
@@ -127,6 +167,17 @@ class _SignUpState extends State<SignUp> {
                   obscureText: true,
                   validator: _validateConfirm,
                 ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _photoUrlCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Profile Photo URL (optional)',
+                    border: OutlineInputBorder(),
+                    hintText: 'https://example.com/image.jpg',
+                  ),
+                  keyboardType: TextInputType.url,
+                  validator: _validatePhotoUrl,
+                ),
                 const SizedBox(height: 16),
                 Row(
                   children: [
@@ -134,7 +185,13 @@ class _SignUpState extends State<SignUp> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _submit,
                         child: _isLoading
-                            ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                            ? const SizedBox(
+                                height: 16,
+                                width: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
                             : const Text('Create account'),
                       ),
                     ),
