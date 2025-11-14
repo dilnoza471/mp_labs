@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'sign_up.dart';
 import 'homepage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 class Login extends StatefulWidget {
   const Login({super.key});
 
@@ -33,19 +34,19 @@ class _LoginState extends State<Login> {
     if (v.length < 6) return 'Password too short';
     return null;
   }
-  Future<void> signIn(String email, String password) async {
-  try {
-    await FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-  } on FirebaseAuthException catch (e) {
-    throw Exception(e.message ?? 'Login failed');
-  } catch (e) {
-    throw Exception('An unknown error occurred');
-  }
-}
 
+  Future<void> signIn(String email, String password) async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+    } on FirebaseAuthException catch (e) {
+      throw Exception(e.message ?? 'Login failed');
+    } catch (e) {
+      throw Exception('An unknown error occurred');
+    }
+  }
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
@@ -62,11 +63,23 @@ class _LoginState extends State<Login> {
         );
       });
     } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      return;
+    }
+  }
+
+  Future<void> resetPassword(String email) async {
+    if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
+        const SnackBar(
+          content: Text('Please enter your email to reset password'),
+        ),
       );
       return;
     }
+    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
   }
 
   @override
@@ -126,6 +139,27 @@ class _LoginState extends State<Login> {
                 );
               },
               child: const Text("Don't have an account? Sign up"),
+            ),
+            TextButton(
+              onPressed: () async {
+                final email = _emailCtrl.text.trim();
+
+                if (email.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Please enter your email to reset password',
+                      ),
+                    ),
+                  );
+                  return;
+                }
+                await resetPassword(email);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Password reset email sent')),
+                );
+              },
+              child: const Text("Reset Password"),
             ),
           ],
         ),
